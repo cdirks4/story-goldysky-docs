@@ -1,0 +1,105 @@
+# Specifies the version of the subgraph manifest format.
+specVersion: 0.0.4
+
+# A brief description of the subgraph's purpose.
+description: Subgraph for the Uniswap V3-like contract on story-testnet.
+
+# The URL of the repository where the subgraph's code is hosted.
+repository: https://github.com/your-repo/your-subgraph
+
+# The path to the GraphQL schema file defining the subgraph's data structures.
+schema:
+  file: ./schema.graphql
+
+# Optional features enabled for this subgraph.
+features:
+  - nonFatalErrors # Allows indexing to continue even if some errors occur.
+  - grafting # Enables advanced data indexing techniques.
+
+# Data sources are smart contracts from which the subgraph ingests data.
+dataSources:
+  # First data source: the Factory contract.
+  - kind: ethereum/contract # Specifies the type of data source.
+    name: Factory # A unique name for this data source.
+    network: story-testnet # The Ethereum network where the contract is deployed.
+
+    # Details about the contract.
+    source:
+      abi: Factory # Reference to the ABI defined in the 'abis' section.
+      address: '<ADDRESS>' # Contract address.
+      startBlock: <START_BLOCK_NUMBER> # Replace with the block number where the contract was deployed.
+
+    # Mapping defines how to transform data from the blockchain into entities.
+    mapping:
+      kind: ethereum/events # Indicates that we're mapping Ethereum events.
+      apiVersion: 0.0.7 # Version of The Graph API.
+      language: wasm/assemblyscript # Programming language for the mappings.
+      file: ./src/mappings/factory.ts # Path to the mapping handler file.
+
+      # Entities that this data source will update or create.
+      entities:
+        - Pool
+        - Token
+
+      # ABIs required for decoding data from the contract.
+      abis:
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        # Add more ABIs if needed.
+
+      # Event handlers specify which contract events to listen for and how to handle them.
+      eventHandlers:
+        - event: PoolCreated(indexed address,indexed address,indexed uint24,int24,address)
+          handler: handlePoolCreated
+        # Add more event handlers as necessary.
+
+      # If your contract creates other contracts (e.g., pools), you can use templates.
+
+# Templates are used for dynamically created contracts.
+templates:
+  # Template for Pool contracts created by the Factory.
+  - kind: ethereum/contract
+    name: Pool # Name of the template.
+    network: story-testnet # The network where the contracts will be deployed.
+
+    # Source information for the template contracts.
+    source:
+      abi: Pool # ABI reference for the Pool contracts.
+
+    # Mapping configuration for the Pool contracts.
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/pool/index.ts
+
+      # Entities that will be affected by the Pool contracts.
+      entities:
+        - Pool
+        - Token
+
+      # ABIs needed for the Pool mappings.
+      abis:
+        - name: Pool
+          file: ./abis/Pool.json
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        # Include additional ABIs if necessary.
+
+      # Event handlers for the Pool contracts.
+      eventHandlers:
+        - event: Initialize(uint160,int24)
+          handler: handleInitialize
+        - event: Swap(indexed address,indexed address,int256,int256,uint160,uint128,int24)
+          handler: handleSwap
+        - event: Mint(address,indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+          handler: handleMint
+        - event: Burn(indexed address,indexed int24,indexed int24,uint128,uint256,uint256)
+          handler: handleBurn
+        - event: Collect(indexed address,address,indexed int24,indexed int24,uint128,uint128)
+          handler: handleCollect
+        # Add more event handlers if required.
