@@ -8,7 +8,7 @@ Table of Contents Prerequisites Step 1: Install Goldsky CLI and Log In Step 2: S
 
 Node.js and Yarn Git The Graph CLI Install The Graph CLI globally:
 
-bash Copy code npm install -g @graphprotocol/graph-cli Step 1: Install Goldsky CLI and Log In Install Goldsky CLI Run the following command to install the Goldsky CLI:
+```npm install -g @graphprotocol/graph-cli``` Step 1: Install Goldsky CLI and Log In Install Goldsky CLI Run the following command to install the Goldsky CLI:
 
 bash Copy code curl [https://goldsky.com](https://goldsky.com/) | sh Log In to Goldsky Create an API Key:
 
